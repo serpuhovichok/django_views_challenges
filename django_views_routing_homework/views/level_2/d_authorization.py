@@ -36,17 +36,19 @@ USERNAME_TO_PASSWORD_MAPPER = {
 
 @csrf_exempt
 def process_authorization_view(request) -> JsonResponse | HttpResponseNotAllowed:
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        if data['username'] in USERNAME_TO_PASSWORD_MAPPER.keys():
-            if data['password'] == USERNAME_TO_PASSWORD_MAPPER[data['username']]:
-                return JsonResponse(data={}, status=200)
-            else:
-                return JsonResponse(data={}, status=401)
-        elif data['username'] not in USERNAME_TO_PASSWORD_MAPPER.keys():
-            return JsonResponse(data={}, status=403)
-    else:
+    if request.method != 'POST':
         return HttpResponseNotAllowed(permitted_methods=['POST'])
+
+    data = json.loads(request.body)
+    user_password = USERNAME_TO_PASSWORD_MAPPER.get(data['username'])
+
+    if not user_password:
+        return JsonResponse(data={}, status=403)
+
+    if data['password'] != user_password:
+        return JsonResponse(data={}, status=403)
+
+    return JsonResponse(data={}, status=200)
 
 
 # не обращайте внимания на эту вьюху, она нужна лишь для отрисовки страницы авторизации
