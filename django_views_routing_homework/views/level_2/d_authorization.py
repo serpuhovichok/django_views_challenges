@@ -35,12 +35,20 @@ USERNAME_TO_PASSWORD_MAPPER = {
 
 
 @csrf_exempt
-def process_authorization_view(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        # код писать тут
-    else:
+def process_authorization_view(request) -> JsonResponse | HttpResponseNotAllowed:
+    if request.method != 'POST':
         return HttpResponseNotAllowed(permitted_methods=['POST'])
+
+    data = json.loads(request.body)
+    user_password = USERNAME_TO_PASSWORD_MAPPER.get(data['username'])
+
+    if not user_password:
+        return JsonResponse(data={}, status=403)
+
+    if data['password'] != user_password:
+        return JsonResponse(data={}, status=403)
+
+    return JsonResponse(data={}, status=200)
 
 
 # не обращайте внимания на эту вьюху, она нужна лишь для отрисовки страницы авторизации
