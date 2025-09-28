@@ -31,6 +31,6 @@ urlpatterns = [
     path('me/ip/', show_user_ip_view),
     path('user/validate/', validate_user_data_view),
     path('user/github/<slug:github_username>/full-name/', fetch_name_from_github_view),
-    path('text/generate/', generate_file_with_text_view),
+    path('text/generate/<int:length>', generate_file_with_text_view),
     # добавлять пути тут
 ]
